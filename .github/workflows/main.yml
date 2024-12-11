@@ -6,7 +6,6 @@ on:
 
 permissions:
   issues: write
-  repository-projects: write
 
 jobs:
   auto-assign:
@@ -14,29 +13,15 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      # 이슈 생성자를 이슈에 자동 할당
+      # 이슈 생성자를 자동으로 할당
       - name: Auto-assign issue creator
         uses: pozil/auto-assign-issue@v2
         with:
           assignees: ${{ github.actor }}
 
-      - name: Debug Project List
-        run: gh project list --owner jaeml06 --format json
-
-      # 베타 프로젝트에 이슈 추가
-      - name: Add issue to project
+      # 클래식 프로젝트에 이슈 추가
+      - name: Add issue to classic project
         run: |
-          PROJECT_ID=$(gh project list --owner jaeml06 --format json | jq -r '.[] | select(.title == "test") | .id')
-          ISSUE_ID=$(gh issue view ${{ github.event.issue.number }} --json id --jq .id)
-
-          if [ -z "$PROJECT_ID" ]; then
-            echo "No project found with the title 'test'"
-            exit 1
-          fi
-
-          if [ -z "$ISSUE_ID" ]; then
-            echo "Failed to get ISSUE_ID"
-            exit 1
-          fi
-
-          gh project item add $PROJECT_ID --item-id $ISSUE_ID
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          # "test"는 클래식 프로젝트의 이름
+          gh issue edit $ISSUE_NUMBER --add-project "test"
