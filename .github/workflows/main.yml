@@ -11,6 +11,8 @@ permissions:
 jobs:
   auto-assign:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # 이슈 생성자를 이슈에 자동 할당
       - name: Auto-assign issue creator
@@ -20,20 +22,15 @@ jobs:
 
       - name: Debug Project List
         run: gh project list --format json
+
       # 베타 프로젝트에 이슈 추가
       - name: Add issue to project
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 프로젝트 목록에서 title 필드가 "YourProjectName"과 일치하는 프로젝트의 id 추출
           PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.title == "test") | .id')
-
-          # 현재 발생한 이슈의 id 추출
           ISSUE_ID=$(gh issue view ${{ github.event.issue.number }} --json id --jq .id)
 
-          # 유효성 검증
           if [ -z "$PROJECT_ID" ]; then
-            echo "No project found with the title 'YourProjectName'"
+            echo "No project found with the title 'test'"
             exit 1
           fi
 
@@ -42,5 +39,4 @@ jobs:
             exit 1
           fi
 
-          # 프로젝트에 아이템(이슈) 추가
           gh project item add $PROJECT_ID --item-id $ISSUE_ID
