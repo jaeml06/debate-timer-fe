@@ -13,7 +13,11 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      # 이슈 생성자를 자동으로 할당
+      # 리포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 이슈 생성자를 자동 할당
       - name: Auto-assign issue creator
         uses: pozil/auto-assign-issue@v2
         with:
@@ -23,5 +27,4 @@ jobs:
       - name: Add issue to classic project
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          # "test"는 클래식 프로젝트의 이름
-          gh issue edit $ISSUE_NUMBER --add-project "test"
+          gh issue edit "$ISSUE_NUMBER" --add-project "test"
