@@ -12,23 +12,28 @@ jobs:
   auto-assign:
     runs-on: ubuntu-latest
     steps:
-      # GitHub CLI 인증
-      - name: Authenticate GitHub CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
-      # Auto-assign issue creator
+      # 이슈를 생성한 사용자에게 자동 할당
       - name: Auto-assign issue creator
         uses: pozil/auto-assign-issue@v2
         with:
           assignees: ${{ github.actor }}
 
-      # Add issue to project
-      - name: Add issue to GitHub Project
+      # GITHUB_TOKEN을 이용해 gh 명령어 바로 사용
+      - name: Add issue to project
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.name == "debate-timer") | .id')
+          PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.name == "test") | .id')
           ISSUE_ID=$(gh issue view ${{ github.event.issue.number }} --json id --jq .id)
+
+          # PROJECT_ID, ISSUE_ID가 제대로 추출되었는지 검사
+          if [ -z "$PROJECT_ID" ]; then
+            echo "No project found with the name 'YourProjectName'"
+            exit 1
+          fi
+          if [ -z "$ISSUE_ID" ]; then
+            echo "Failed to get ISSUE_ID"
+            exit 1
+          fi
+
           gh project item add $PROJECT_ID --item-id $ISSUE_ID
