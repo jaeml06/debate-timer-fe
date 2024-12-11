@@ -12,28 +12,33 @@ jobs:
   auto-assign:
     runs-on: ubuntu-latest
     steps:
-      # 이슈를 생성한 사용자에게 자동 할당
+      # 이슈 생성자를 이슈에 자동 할당
       - name: Auto-assign issue creator
         uses: pozil/auto-assign-issue@v2
         with:
           assignees: ${{ github.actor }}
 
-      # GITHUB_TOKEN을 이용해 gh 명령어 바로 사용
+      # 베타 프로젝트에 이슈 추가
       - name: Add issue to project
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.name == "test") | .id')
+          # 프로젝트 목록에서 title 필드가 "YourProjectName"과 일치하는 프로젝트의 id 추출
+          PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.title == "test") | .id')
+
+          # 현재 발생한 이슈의 id 추출
           ISSUE_ID=$(gh issue view ${{ github.event.issue.number }} --json id --jq .id)
 
-          # PROJECT_ID, ISSUE_ID가 제대로 추출되었는지 검사
+          # 유효성 검증
           if [ -z "$PROJECT_ID" ]; then
-            echo "No project found with the name 'YourProjectName'"
+            echo "No project found with the title 'YourProjectName'"
             exit 1
           fi
+
           if [ -z "$ISSUE_ID" ]; then
             echo "Failed to get ISSUE_ID"
             exit 1
           fi
 
+          # 프로젝트에 아이템(이슈) 추가
           gh project item add $PROJECT_ID --item-id $ISSUE_ID
