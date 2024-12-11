@@ -18,6 +18,8 @@ jobs:
         with:
           assignees: ${{ github.actor }}
 
+      - name: Debug Project List
+        run: gh project list --format json
       # 베타 프로젝트에 이슈 추가
       - name: Add issue to project
         env:
