@@ -27,4 +27,4 @@ jobs:
       - name: Add issue to classic project
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          gh issue edit "$ISSUE_NUMBER" --add-project "test"
+          gh issue edit 8 --add-project "test" --user jaeml06
