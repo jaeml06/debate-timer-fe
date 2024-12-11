@@ -21,12 +21,12 @@ jobs:
           assignees: ${{ github.actor }}
 
       - name: Debug Project List
-        run: gh project list --format json
+        run: gh project list --owner jaeml06 --format json
 
       # 베타 프로젝트에 이슈 추가
       - name: Add issue to project
         run: |
-          PROJECT_ID=$(gh project list --format json | jq -r '.[] | select(.title == "test") | .id')
+          PROJECT_ID=$(gh project list --owner jaeml06 --format json | jq -r '.[] | select(.title == "test") | .id')
           ISSUE_ID=$(gh issue view ${{ github.event.issue.number }} --json id --jq .id)
 
           if [ -z "$PROJECT_ID" ]; then
